@@ -712,6 +712,11 @@
                 const pnlSign = pnlRMB > 0 ? '+' : '';
                 const pnlClass = pnlRMB > 0 ? 'up' : pnlRMB < 0 ? 'down' : '';
 
+                let tradableHtml = '';
+                if (stock.lockedShares > 0) {
+                    tradableHtml = `<div style="font-size:11px; color:var(--apple-blue); margin-top:2px; font-weight:500;">可售 ¥${tradableValRMB.toLocaleString('zh-CN', {maximumFractionDigits: 0})} <span style="color:var(--text-sub); font-weight:normal;">(${stock.tradableShares.toLocaleString()}股)</span></div>`;
+                }
+
                 breakdownHtml += `
                     <div class="breakdown-item">
                         <div class="breakdown-header-row">
@@ -719,6 +724,7 @@
                             <span class="breakdown-pnl tabular-num ${pnlClass}">${pnlSign}¥${pnlRMB.toLocaleString('zh-CN', {maximumFractionDigits: 0})}</span>
                         </div>
                         <div class="breakdown-val tabular-num">¥${valRMB.toLocaleString('zh-CN', {maximumFractionDigits: 0})} <span style="font-size:11px; color:var(--text-sub); font-weight:normal;">(${stock.shares.toLocaleString()}股)</span></div>
+                        ${tradableHtml}
                     </div>
                 `;
             });
