@@ -174,7 +174,7 @@
 
         .metrics-grid { 
             display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
+            grid-template-columns: repeat(4, 1fr); 
             gap: 16px; 
             margin-bottom: 16px; 
         }
@@ -389,6 +389,9 @@
             .grid-container {
                 grid-template-columns: 1fr;
             }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
             .breakdown-bar {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -447,6 +450,11 @@
                 <div class="metric-label">当日总盈亏</div>
                 <div class="metric-value tabular-num" id="total-change-val">¥--.--</div>
                 <div class="metric-sub tabular-num" id="total-change-pct-sub">--%</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">可售出资产当日盈亏</div>
+                <div class="metric-value tabular-num" id="tradable-change-val">¥--.--</div>
+                <div class="metric-sub tabular-num" id="tradable-change-pct-sub">--%</div>
             </div>
         </div>
 
@@ -695,6 +703,7 @@
             let totalAssetsRMB = 0;
             let tradableAssetsRMB = 0;
             let totalDailyPnlRMB = 0;
+            let tradableDailyPnlRMB = 0;
             let breakdownHtml = '';
 
             stockConfigs.forEach(stock => {
@@ -704,10 +713,12 @@
                 const valRMB = data.current * stock.shares * stock.fx;
                 const tradableValRMB = data.current * stock.tradableShares * stock.fx;
                 const pnlRMB = data.changeAmt * stock.shares * stock.fx;
+                const tradablePnlRMB = data.changeAmt * stock.tradableShares * stock.fx;
 
                 totalAssetsRMB += valRMB;
                 tradableAssetsRMB += tradableValRMB;
                 totalDailyPnlRMB += pnlRMB;
+                tradableDailyPnlRMB += tradablePnlRMB;
 
                 const pnlSign = pnlRMB > 0 ? '+' : '';
                 const pnlClass = pnlRMB > 0 ? 'up' : pnlRMB < 0 ? 'down' : '';
@@ -740,6 +751,17 @@
                 totalPnlEl.className = 'metric-value tabular-num ' + (totalDailyPnlRMB > 0 ? 'up' : totalDailyPnlRMB < 0 ? 'down' : '');
                 
                 document.getElementById('total-change-pct-sub').innerHTML = `变动: <span class="${totalDailyPnlRMB > 0 ? 'up' : totalDailyPnlRMB < 0 ? 'down' : ''}">${totalPnlSign}${totalPnlPct.toFixed(2)}%</span>`;
+
+                const tradablePnlSign = tradableDailyPnlRMB > 0 ? '+' : '';
+                const tradablePnlPct = tradableAssetsRMB - tradableDailyPnlRMB !== 0
+                    ? (tradableDailyPnlRMB / (tradableAssetsRMB - tradableDailyPnlRMB)) * 100
+                    : 0;
+                const tradablePnlEl = document.getElementById('tradable-change-val');
+                tradablePnlEl.innerText = `${tradablePnlSign}¥${tradableDailyPnlRMB.toLocaleString('zh-CN', {maximumFractionDigits: 2})}`;
+                tradablePnlEl.className = 'metric-value tabular-num ' + (tradableDailyPnlRMB > 0 ? 'up' : tradableDailyPnlRMB < 0 ? 'down' : '');
+
+                document.getElementById('tradable-change-pct-sub').innerHTML = `变动: <span class="${tradableDailyPnlRMB > 0 ? 'up' : tradableDailyPnlRMB < 0 ? 'down' : ''}">${tradablePnlSign}${tradablePnlPct.toFixed(2)}%</span>`;
+
                 document.getElementById('breakdown-bar').innerHTML = breakdownHtml;
             }
         }
